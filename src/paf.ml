@@ -56,7 +56,25 @@ let mux in_pipes =
   Printf.printf "total: %d\n" !total
 
 let main () =
-  let _nprocs = int_of_string Sys.argv.(1) in
-  failwith "not implemented yet"
+  let nprocs = int_of_string Sys.argv.(1) in
+  let to_worker_pipes = A.init nprocs (fun _i -> Unix.pipe ()) in
+  let from_worker_pipes = A.init nprocs (fun _i -> Unix.pipe ()) in
+  let to_workers =   A.map (fun (_pipe_exit, pipe_entry) -> Unix.out_channel_of_descr pipe_entry) to_worker_pipes in
+  let from_demuxer = A.map (fun (pipe_exit, _pipe_entry) -> Unix.in_channel_of_descr  pipe_exit)  to_worker_pipes in
+  let from_workers = A.map (fun (pipe_exit, _pipe_entry) -> Unix.in_channel_of_descr  pipe_exit)  from_worker_pipes in
+  let to_muxer =     A.map (fun (_pipe_exit, pipe_entry) -> Unix.out_channel_of_descr pipe_entry) from_worker_pipes in
+  (* start muxer *)
+  (match Unix.fork () with
+   | 0 -> (* forked out *) mux from_workers
+   | _pid -> ()
+  );
+  (* start workers *)
+  for i = 0 to nprocs - 1 do
+    match Unix.fork () with
+    | 0 -> (* forked out *) work from_demuxer.(i) to_muxer.(i)
+    | _pid -> ()
+  done;
+  (* start demuxer *)
+  demux 1_000_000 0 to_workers
 
 let () = main ()
