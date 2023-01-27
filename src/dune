@@ -3,4 +3,4 @@
   (names paf)
   (public_names paf)
   (modules paf)
-  (libraries batteries dolog minicli parany line_oriented))
+  (libraries unix batteries dolog minicli parany line_oriented))
