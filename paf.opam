@@ -1,0 +1,15 @@
+opam-version: "2.0"
+authors: "Francois Berenger"
+maintainer: "unixjunkie@sdf.org"
+license: "GPL-3.0-only"
+build: ["dune" "build" "-p" name "-j" jobs]
+depends: [
+  "batteries"
+  "dolog"
+  "dune" {>= "1.11"}
+  "line_oriented"
+  "minicli"
+  "ocaml"
+  "parany"
+]
+synopsis: "experiments"

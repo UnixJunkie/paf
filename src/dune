@@ -1,0 +1,6 @@
+;; installed executables / public targets
+(executables
+  (names paf)
+  (public_names paf)
+  (modules paf)
+  (libraries batteries dolog minicli parany line_oriented))
